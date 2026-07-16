@@ -21,6 +21,10 @@
     --sage: #A8D5BA;
     --dusty-rose: #D4A5C9;
     --sky: #9DC4E0;
+    --warn: #B45309;
+    --warn-bg: #FEF3C7;
+    --danger: #B42318;
+    --danger-bg: #FEE4E2;
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
@@ -28,6 +32,8 @@
   .crumb { background: #fff; border-bottom: 1px solid var(--border); padding: 12px 0; font-size: 13px; color: var(--muted); }
   .crumb span { color: var(--navy); font-weight: 600; }
   .crumb .sep { color: var(--border); padding: 0 8px; }
+  /* Visible keyboard focus for accessibility */
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; border-radius: 4px; }
   header.hero { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%); color: #fff; padding: 56px 0 64px; position: relative; overflow: hidden; border-bottom: 4px solid var(--orange); }
   header.hero::before { content: ""; position: absolute; top: -80px; right: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(224, 122, 31, 0.12); }
   header.hero .container { position: relative; z-index: 1; }
@@ -54,7 +60,14 @@
   .featured-fact span { color: var(--navy); font-weight: 600; font-size: 15px; }
   .deadline-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--cream); border-left: 3px solid var(--gold); padding: 10px 16px; border-radius: 6px; margin: 8px 0 20px; font-size: 14px; color: var(--navy); font-weight: 600; }
   .deadline-badge::before { content: "▲"; color: var(--orange); }
-  .cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  /* Countdown pill inside the deadline badge, plus urgency states */
+  .countdown-pill { display: inline-block; background: rgba(19,113,91,0.12); color: var(--teal); font-weight: 700; padding: 2px 10px; border-radius: 999px; font-size: 13px; }
+  .countdown-pill:empty { display: none; }
+  .deadline-badge.warn { background: var(--warn-bg); border-left-color: var(--warn); }
+  .deadline-badge.warn .countdown-pill { background: rgba(180,83,9,0.14); color: var(--warn); }
+  .deadline-badge.overdue { background: var(--danger-bg); border-left-color: var(--danger); color: var(--danger); }
+  .deadline-badge.overdue .countdown-pill { background: rgba(180,35,24,0.14); color: var(--danger); }
+  .cta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
   .btn { display: inline-block; padding: 13px 24px; border-radius: 8px; font-weight: 700; font-size: 15px; text-decoration: none; transition: all 0.15s; border: none; cursor: pointer; font-family: inherit; }
   .btn-primary { background: var(--teal); color: #fff; }
   .btn-primary:hover { background: #0e5b48; }
@@ -69,11 +82,15 @@
   .why-fact { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
   .why-fact h4 { margin: 0 0 4px; color: var(--orange); font-size: 24px; }
   .why-fact p { margin: 0; color: var(--muted); font-size: 14px; }
+  .source-note { margin-top: 16px; font-size: 12px; color: var(--muted); }
+  .source-note a { color: var(--teal); }
   .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; counter-reset: step; }
   .step { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 24px 22px 20px; position: relative; }
   .step::before { counter-increment: step; content: counter(step); position: absolute; top: -18px; left: 22px; background: var(--teal); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; box-shadow: 0 4px 10px rgba(19, 113, 91, 0.25); }
   .step h3 { margin: 8px 0 6px; color: var(--navy); font-size: 16px; }
-  .step p { margin: 0; color: var(--muted); font-size: 14px; }
+  .step p { margin: 0 0 8px; color: var(--muted); font-size: 14px; }
+  .step .step-link { color: var(--teal); font-weight: 700; font-size: 14px; text-decoration: none; }
+  .step .step-link:hover { text-decoration: underline; }
   .related { background: #fff; border-top: 1px solid var(--border); }
   .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
   .rcard { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 8px; transition: all 0.18s; position: relative; overflow: hidden; }
@@ -92,10 +109,12 @@
   .report .lede-light { color: #D8E0EC; margin: 0 0 28px; max-width: 720px; }
   .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
   .report-card { background: rgba(255,255,255,0.06); border-left: 3px solid var(--gold); padding: 20px 22px; border-radius: 6px; }
+  .report-card.anon { border-left-color: var(--sage); background: rgba(168,213,186,0.10); }
   .report-card h3 { color: #fff; margin: 0 0 6px; font-size: 16px; }
   .report-card p { color: #D8E0EC; margin: 0 0 6px; font-size: 14px; }
   .report-card a { color: var(--gold); text-decoration: none; font-weight: 600; }
   .report-card a:hover { text-decoration: underline; }
+  .report-card.anon a { color: var(--sage); }
   .safe-note { background: rgba(242, 184, 75, 0.14); border: 1px solid rgba(242, 184, 75, 0.35); border-radius: 8px; padding: 18px 22px; margin-top: 24px; font-size: 14px; color: #FFF8E5; }
   .safe-note strong { color: var(--gold); }
   .dc-resources { background: var(--bg); padding: 48px 0; border-top: 1px solid var(--border); }
@@ -107,14 +126,31 @@
   .dc-card p { margin: 4px 0 10px; color: var(--muted); font-size: 14px; flex: 1; }
   .dc-card a { color: var(--teal); font-weight: 700; font-size: 14px; text-decoration: none; margin-top: auto; }
   .dc-card a::after { content: " →"; }
-  .archive { background: var(--bg); padding: 40px 0; }
-  .archive-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
-  .archive-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; }
-  .archive-item .amo { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
-  .archive-item .atitle { color: var(--navy); font-weight: 600; margin: 4px 0 0; font-size: 15px; }
+  /* FAQ */
+  .faq { background: #fff; border-top: 1px solid var(--border); }
+  .faq-list { max-width: 820px; }
+  .faq-item { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; background: var(--bg); overflow: hidden; }
+  .faq-item summary { cursor: pointer; padding: 16px 20px; font-weight: 600; color: var(--navy); font-size: 15px; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after { content: "+"; color: var(--teal); font-size: 22px; font-weight: 700; line-height: 1; }
+  .faq-item[open] summary::after { content: "–"; }
+  .faq-item .faq-body { padding: 0 20px 18px; color: var(--muted); font-size: 14px; }
+  .faq-item .faq-body a { color: var(--teal); font-weight: 600; }
+  .upcoming { background: var(--bg); padding: 40px 0; }
+  .upcoming-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .upcoming-item { background: #fff; border: 1px dashed var(--border); border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 3px; }
+  .upcoming-item .umo { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+  .upcoming-item .utitle { color: var(--navy); font-weight: 600; margin: 2px 0; font-size: 15px; }
+  .upcoming-item .udesc { color: var(--muted); font-size: 13px; margin: 0 0 4px; }
+  .upcoming-item .uplanned { align-self: flex-start; margin-top: 4px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; color: var(--muted); background: var(--hover); border: 1px solid var(--border); padding: 2px 8px; border-radius: 999px; }
   footer.pagefoot { background: var(--navy); color: #B8C2D4; padding: 32px 0; font-size: 13px; }
   footer.pagefoot .container { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
   footer.pagefoot a { color: var(--gold); text-decoration: none; }
+  /* Respect users who prefer reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+    .rcard:hover, .dc-card:hover, .archive-item:hover { transform: none; }
+  }
 </style>
 </head>
 <body>
@@ -129,7 +165,7 @@
   <div class="container">
     <div class="eyebrow">DC SCORES · People &amp; Culture</div>
     <h1>Training of the Month</h1>
-    <p class="month-label">July 2026 · Workplace Behavior &amp; Respect</p>
+    <p class="month-label" id="monthLabel">July 2026 · Workplace Behavior &amp; Respect</p>
     <p class="intro">Every month, one required training moves to center stage. This is where you'll find it, why it matters, how long it takes, and where to go for support. Updated on the first of each month.</p>
   </div>
 </header>
@@ -150,7 +186,11 @@
           <div class="featured-fact"><strong>Competency</strong><span>Commitment</span></div>
         </div>
 
-        <div class="deadline-badge">Complete by Saturday, August 15, 2026 · Tracked centrally</div>
+        <div class="deadline-badge" id="deadlineBadge">
+          Complete by <span id="deadlineText">Saturday, August 15, 2026</span>
+          <span class="countdown-pill" id="countdown" aria-live="polite"></span>
+          · Tracked centrally
+        </div>
 
         <div class="featured-grid">
           <div class="featured-block">
@@ -171,6 +211,7 @@
 
         <div class="cta-row">
           <a class="btn btn-primary" href="https://www.linkedin.com/learning/preventing-harassment-in-the-workplace" target="_blank" rel="noopener">Start on LinkedIn Learning →</a>
+          <button class="btn btn-secondary" id="addCal" type="button">Add 60-min block to calendar</button>
           <a class="btn btn-secondary" href="mailto:cblackwell@dcscores.org?subject=Question%20about%20Anti-Harassment%20Training">Ask a question</a>
         </div>
       </div>
@@ -184,10 +225,11 @@
     <p class="section-lead">The context behind putting anti-harassment first in our monthly rotation.</p>
     <blockquote>"How we treat each other on the way to the pitch shapes how our poet-athletes see themselves treated on it. A respectful workplace is not a compliance box — it is our mission, lived out among ourselves."</blockquote>
     <div class="why-facts">
-      <div class="why-fact"><h4>1 in 3</h4><p>Working adults reports experiencing harassment at work at some point in their career.</p></div>
-      <div class="why-fact"><h4>Under-reported</h4><p>The majority of workplace harassment goes unreported. A trained team is a safer team.</p></div>
-      <div class="why-fact"><h4>Bystanders matter</h4><p>Most harassment stops when a bystander intervenes. Everyone has a role.</p></div>
+      <div class="why-fact"><h4>1 in 3</h4><p>Working women report experiencing workplace sexual harassment — a conservative figure; credible estimates run considerably higher.</p></div>
+      <div class="why-fact"><h4>3 in 4</h4><p>Of people who experience harassment at work never report it to a manager, supervisor, or union representative.</p></div>
+      <div class="why-fact"><h4>Bystanders matter</h4><p>Bystander intervention is one of the most promising ways to stop harassment — which is why it's built into this month's course.</p></div>
     </div>
+    <p class="source-note">Sources: U.S. Equal Employment Opportunity Commission, <a href="https://www.eeoc.gov/select-task-force-study-harassment-workplace" target="_blank" rel="noopener">Select Task Force on the Study of Harassment in the Workplace</a> (2016), which reports that roughly three in four people who experience harassment never report it, and endorses bystander-intervention training as a prevention tool.</p>
   </div>
 </section>
 
@@ -199,6 +241,7 @@
       <div class="step">
         <h3>Block your calendar</h3>
         <p>Reserve a 60-minute quiet block this week. Ask your manager to protect it if needed.</p>
+        <a class="step-link" href="#" id="addCalStep">Add the block →</a>
       </div>
       <div class="step">
         <h3>Complete the course</h3>
@@ -207,6 +250,8 @@
       <div class="step">
         <h3>Log completion</h3>
         <p>LinkedIn Learning marks it automatically. People &amp; Culture confirms in your record.</p>
+        <!-- To use a Google Form instead of email, replace this href with your form's URL. -->
+        <a class="step-link" href="mailto:cblackwell@dcscores.org?subject=Completed%3A%20Anti-Harassment%20Training&body=Hi%20Charity%2C%0D%0A%0D%0AI've%20completed%20this%20month's%20required%20Anti-Harassment%20training.%0D%0A%0D%0AName%3A%0D%0ADate%20completed%3A%0D%0A">I've completed this ✓ →</a>
       </div>
       <div class="step">
         <h3>Reflect in your 1:1</h3>
@@ -332,9 +377,14 @@
     <p class="lede-light">Reporting is not optional and it is not a burden. Multiple pathways — you choose what feels right. Everything is taken seriously.</p>
     <div class="report-grid">
       <div class="report-card">
-        <h3>Talk to People &amp; Culture</h3>
-        <p>Charity Blackwell, Director of People &amp; Culture. Confidential first conversation, no obligation to file a formal report.</p>
-        <a href="mailto:cblackwell@dcscores.org">cblackwell@dcscores.org</a>
+        <h3>Talk to the COO</h3>
+        <p>Shawn Shinkle, Chief Operations Officer. Confidential first conversation, no obligation to file a formal report.</p>
+        <a href="mailto:shinkle@dcscores.org">shinkle@dcscores.org</a>
+      </div>
+      <div class="report-card anon">
+        <h3>Report anonymously</h3>
+        <p>Prefer not to share your name? Our anonymous reporting form reaches People &amp; Culture without identifying you.</p>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfRByApRuP6sYR6R2_oEoWPyYIzgijBU1nOpRyAU6--HxSUmQ/viewform" target="_blank" rel="noopener">Open the anonymous form</a>
       </div>
       <div class="report-card">
         <h3>Talk to your manager</h3>
@@ -356,15 +406,60 @@
   </div>
 </section>
 
-<section class="archive">
+<section class="faq">
   <div class="container">
-    <h2 class="section-h">Recent months</h2>
-    <p class="section-lead">A running record of what's rotated through this page. Every training remains available to complete any time via LinkedIn Learning.</p>
-    <div class="archive-list">
-      <div class="archive-item"><div class="amo">June 2026</div><div class="atitle">Diversity, Inclusion &amp; Belonging for All</div></div>
-      <div class="archive-item"><div class="amo">May 2026</div><div class="atitle">Anti-Racism Foundations</div></div>
-      <div class="archive-item"><div class="amo">April 2026</div><div class="atitle">Communication Foundations</div></div>
-      <div class="archive-item"><div class="amo">March 2026</div><div class="atitle">Emotional Intelligence Foundations</div></div>
+    <h2 class="section-h">Common questions</h2>
+    <p class="section-lead">Quick answers to the things people ask most. Still stuck? Reach out to People &amp; Culture.</p>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>I've completed this training, or one like it, before — do I need to do it again?</summary>
+        <div class="faq-body">Yes. This is the first time we're making it a shared requirement for everyone on staff, so we're all completing it together now — even if you've taken something similar in the past. Going forward it becomes an annual refresh, keeping the whole team on the same, up-to-date footing.</div>
+      </details>
+      <details class="faq-item">
+        <summary>How do I log in to LinkedIn Learning?</summary>
+        <div class="faq-body">Use your <strong>dcscores.org</strong> account. Click "Start on LinkedIn Learning" above and sign in with your work email — you'll be routed through single sign-on. If you hit a wall, email <a href="mailto:cblackwell@dcscores.org?subject=LinkedIn%20Learning%20access">People &amp; Culture</a> and we'll get you access.</div>
+      </details>
+      <details class="faq-item">
+        <summary>I need an accommodation to complete this training.</summary>
+        <div class="faq-body">We've got you. Whether it's captions, extra time, a different format, or anything else, contact <a href="mailto:cblackwell@dcscores.org?subject=Training%20accommodation%20request">People &amp; Culture</a> and we'll arrange an alternative that works for you — no need to share details you're not comfortable sharing.</div>
+      </details>
+      <details class="faq-item">
+        <summary>What if I can't finish by the deadline?</summary>
+        <div class="faq-body">Let us know before the date if you can. Deadlines keep us all accountable, but life happens — email <a href="mailto:cblackwell@dcscores.org?subject=Training%20deadline">People &amp; Culture</a> and we'll sort out a plan.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="upcoming">
+  <div class="container">
+    <h2 class="section-h">Upcoming months</h2>
+    <p class="section-lead">A preview of what's ahead in the rotation. Tentative and subject to change — each training becomes required when it's featured here on the 1st of its month.</p>
+    <div class="upcoming-list">
+      <div class="upcoming-item">
+        <div class="umo">August 2026</div>
+        <div class="utitle">Bystander Intervention: From Bystander to Upstander</div>
+        <div class="udesc">Turning noticing into action — practical ways to step in safely.</div>
+        <span class="uplanned">Planned</span>
+      </div>
+      <div class="upcoming-item">
+        <div class="umo">September 2026</div>
+        <div class="utitle">Creating a Culture of Respect</div>
+        <div class="udesc">The everyday behaviors that build trust across a team.</div>
+        <span class="uplanned">Planned</span>
+      </div>
+      <div class="upcoming-item">
+        <div class="umo">October 2026</div>
+        <div class="utitle">Having Difficult Conversations</div>
+        <div class="udesc">Clarity, care, and boundaries when a conversation is hard.</div>
+        <span class="uplanned">Planned</span>
+      </div>
+      <div class="upcoming-item">
+        <div class="umo">November 2026</div>
+        <div class="utitle">Communicating with Emotional Intelligence</div>
+        <div class="udesc">Reading the room and managing how your message lands.</div>
+        <span class="uplanned">Planned</span>
+      </div>
     </div>
   </div>
 </section>
@@ -375,6 +470,113 @@
     <div>Questions, feedback, or suggest a topic: <a href="mailto:cblackwell@dcscores.org">cblackwell@dcscores.org</a></div>
   </div>
 </footer>
+
+<script>
+/* ============================================================
+   ONE PLACE TO EDIT EACH MONTH
+   Change these values and the page updates itself: the hero
+   label, the deadline text, the live countdown, and the
+   calendar download all read from here.
+   ============================================================ */
+const TRAINING = {
+  monthLabel: "July 2026",
+  theme: "Workplace Behavior & Respect",
+  title: "Preventing Workplace Harassment for Employees",
+  deadline: "2026-08-15",   // YYYY-MM-DD (local)
+  courseUrl: "https://www.linkedin.com/learning/preventing-harassment-in-the-workplace"
+};
+
+(function () {
+  // Parse deadline as a local date (avoids UTC off-by-one from Date("YYYY-MM-DD")).
+  var parts = TRAINING.deadline.split("-").map(Number);
+  var deadline = new Date(parts[0], parts[1] - 1, parts[2]);
+  var fmt = { weekday: "long", month: "long", day: "numeric", year: "numeric" };
+
+  // --- Hero month label -------------------------------------------------
+  var monthEl = document.getElementById("monthLabel");
+  if (monthEl) monthEl.textContent = TRAINING.monthLabel + " · " + TRAINING.theme;
+
+  // --- Deadline text + live countdown -----------------------------------
+  var deadlineText = document.getElementById("deadlineText");
+  if (deadlineText) deadlineText.textContent = deadline.toLocaleDateString("en-US", fmt);
+
+  var badge = document.getElementById("deadlineBadge");
+  var pill = document.getElementById("countdown");
+  if (pill && badge) {
+    var now = new Date();
+    var startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var days = Math.round((deadline - startOfToday) / 86400000);
+
+    if (days > 1) { pill.textContent = days + " days left"; }
+    else if (days === 1) { pill.textContent = "Due tomorrow"; }
+    else if (days === 0) { pill.textContent = "Due today"; }
+    else { pill.textContent = "Overdue by " + Math.abs(days) + (Math.abs(days) === 1 ? " day" : " days"); }
+
+    if (days < 0) { badge.classList.add("overdue"); }
+    else if (days <= 7) { badge.classList.add("warn"); }
+  }
+
+  // --- Add-to-calendar (.ics download) ----------------------------------
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function icsLocal(d) {
+    return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +
+      "T" + pad(d.getHours()) + pad(d.getMinutes()) + "00";
+  }
+  function icsUTC(d) {
+    return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) +
+      "T" + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + "Z";
+  }
+  function nextWeekdayAt10() {
+    var d = new Date();
+    d.setDate(d.getDate() + 1);            // start with tomorrow
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); // skip weekend
+    d.setHours(10, 0, 0, 0);               // 10:00 AM local
+    return d;
+  }
+  function escapeICS(s) { return s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,"); }
+  function downloadICS() {
+    var start = nextWeekdayAt10();
+    var end = new Date(start.getTime() + 60 * 60000); // 60 minutes
+    var uid = "totm-" + TRAINING.deadline + "-" + start.getTime() + "@dcscores.org";
+    var desc = TRAINING.title + " — this month's required training (~1 hour). Start here: " +
+               TRAINING.courseUrl + " | Deadline: " + deadline.toLocaleDateString("en-US", fmt) + ".";
+    var lines = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//DC SCORES//Training of the Month//EN",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "BEGIN:VEVENT",
+      "UID:" + uid,
+      "DTSTAMP:" + icsUTC(new Date()),
+      "DTSTART:" + icsLocal(start),
+      "DTEND:" + icsLocal(end),
+      "SUMMARY:" + escapeICS("Complete DC SCORES training: " + TRAINING.title),
+      "DESCRIPTION:" + escapeICS(desc),
+      "BEGIN:VALARM",
+      "TRIGGER:-P1D",
+      "ACTION:DISPLAY",
+      "DESCRIPTION:Reminder: DC SCORES training block",
+      "END:VALARM",
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ];
+    var blob = new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "dc-scores-training-block.ics";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+  var calBtn = document.getElementById("addCal");
+  if (calBtn) calBtn.addEventListener("click", downloadICS);
+  var calStep = document.getElementById("addCalStep");
+  if (calStep) calStep.addEventListener("click", function (e) { e.preventDefault(); downloadICS(); });
+})();
+</script>
 
 </body>
 </html>
